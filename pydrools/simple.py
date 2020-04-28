@@ -1,8 +1,7 @@
-import atexit
 import os
 import subprocess
 import weakref
-from typing import Any
+from typing import Any, Dict, Tuple
 
 from py4j.java_gateway import GatewayParameters, JavaGateway
 
@@ -28,7 +27,6 @@ class Gateway:
         process = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stdin=subprocess.DEVNULL
         )
-        weakref.finalize(self, process.terminate)
         while True:
             line = process.stdout.readline()
             if not line:
@@ -39,10 +37,23 @@ class Gateway:
                 break
             else:
                 print(line)
-        self.process = process
-        self.gateway = JavaGateway(
+
+        gateway = JavaGateway(
             gateway_parameters=GatewayParameters(port=port, auto_convert=True)
         )
+
+        def _finalize():
+            try:
+                gateway.shutdown()
+                process.terminate()
+            except Exception:
+                pass
+
+        weakref.finalize(self, _finalize)
+
+        self.process = process
+        self.gateway = gateway
+
 
     def stop(self):
         try:
@@ -72,8 +83,8 @@ class KnowledgeBuilder:
         self.resourceFactory = self.kie.internal.io.ResourceFactory
         self.resourceType = self.kie.api.io.ResourceType
 
-    def __getattr__(self, name):
-        return getattr(self.kbuilder, name)
+    # def __getattr__(self, name):
+    #     return getattr(self.kbuilder, name)
 
     def add_drl(self, content):
         if isinstance(content, str):
@@ -94,8 +105,8 @@ class KnowledgeBase:
         self.gateway = gateway
         self.kbase = kbase
 
-    def __getattr__(self, name):
-        return getattr(self.kbase, name)
+    # def __getattr__(self, name):
+    #     return getattr(self.kbase, name)
 
     def create_knowledge_session(self):
         ksession = self.kbase.newKieSession()
@@ -107,3 +118,17 @@ class KieSession:
         self.ksession = ksession
         self.kbase = kbase
         self.gateway = kbase.gateway
+        self.types: Dict[Tuple[str, str], Any] = {}
+
+    def get_fact_type(self, package, name):
+        _type = self.types.get((package, name))
+        if _type is None:
+            _type = self.ksession.getFactType(package, name)
+            self.types[(package, name)] = _type
+        return _type
+
+    def insert_fact(self, package, name, data):
+        _type = self.get_fact_type(package, name)
+        obj = _type.newInstance()
+        _type.setFromMap(obj, data)
+        return obj
