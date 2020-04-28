@@ -1,0 +1,13 @@
+package gol.rm;
+
+declare Market
+    code: String
+    ref: String
+end
+
+declare Fare
+    market: Market
+    flight_kind: String
+    price: Double
+    updated: boolean
+end

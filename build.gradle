@@ -1,0 +1,42 @@
+plugins {
+	id 'java'
+	id 'application'
+}
+
+group = 'pydrools'
+version = '7.36.1.Final'
+sourceCompatibility = '8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.drools:drools-compiler:7.36.1.Final'
+	implementation 'org.drools:drools-core:7.36.1.Final'
+	implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
+	implementation group: 'net.sf.py4j', name: 'py4j', version: '0.10.9'
+	implementation 'com.sun.xml.bind:jaxb-xjc:2.3.2'
+
+	// testImplementation('org.springframework.boot:spring-boot-starter-test') {
+	// 	exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	// }
+}
+
+application {
+	mainClassName 'pydrools.PyDroolsEntrypoint'
+}
+
+task pybuild(type: Sync, dependsOn: "jar") {
+    into "pydrools/lib"
+    from configurations.runtimeClasspath + (files {jar})
+}
+
+// task foo {
+// 	files {jar}.forEach {println(it)}
+// }
+
+test {
+	useJUnitPlatform()
+}
+
