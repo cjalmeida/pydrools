@@ -1,2 +1,1 @@
-from .simple import (Gateway, KieSession, KnowledgeBase,  # NOQA
-                     KnowledgeBuilder)
+from .simple import Gateway, KieSession, KnowledgeBase, KnowledgeBuilder

@@ -1,0 +1,12 @@
+package foo.rules;
+dialect 'mvel'
+
+import foo.model.*
+
+rule "Ensure student has a lecture"
+    when
+        $s: Student(lecture == null)
+        $l: Lecture()
+    then
+        $s.lecture = $l
+end

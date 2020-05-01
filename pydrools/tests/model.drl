@@ -1,13 +1,11 @@
-package gol.rm;
+package foo.model;
+dialect 'mvel'
 
-declare Market
-    code: String
-    ref: String
+declare Lecture
+    name: String
 end
 
-declare Fare
-    market: Market
-    flight_kind: String
-    price: Double
-    updated: boolean
+declare Student
+    name: String
+    lecture: Lecture
 end
