@@ -1,0 +1,11 @@
+package {{ package_name }};
+{% for i in imports %}
+import {{i}};
+{% endfor %}
+dialect 'mvel'
+{% for c in classes %}
+declare {{c.name}}
+    {% for f in c.fields %}{{ f.name }}: {{ f.type }}
+    {% endfor %}
+end
+{% endfor %}

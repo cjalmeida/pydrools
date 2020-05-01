@@ -3,7 +3,7 @@ import os
 import subprocess
 import weakref
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Tuple, Union, Type
 
 from py4j.java_gateway import GatewayParameters, JavaGateway
 
@@ -152,7 +152,7 @@ class KieSession:
             weakref.finalize(self, ksession.dispose)
 
     @staticmethod
-    def from_assets(assets: Iterable[Union[str, bytes, Path]], **kwargs):
+    def from_assets(assets: Iterable[Union[str, bytes, Path, Type]], **kwargs):
         gateway = Gateway()
         kbuilder = gateway.create_knowledge_builder()
         for asset in assets:
@@ -184,7 +184,7 @@ class FactType:
         return getattr(self.kie_fact_type, name)
 
     def __call__(self, *args, **kwargs):
-        data = dict(zip(args, self.field_names))
+        data = dict(zip(self.field_names, args))
         data.update(kwargs)
         obj = self.fact_type.newInstance()
         self.fact_type.setFromMap(obj, data)

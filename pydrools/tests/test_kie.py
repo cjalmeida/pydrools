@@ -18,6 +18,8 @@ def test_session():
 
     # test java method call access on fact
     assert mussum.getLecture() is None
+    assert mussum.getName() == "Mussum"
+    assert pinga.name == "Pinga Crafting"
 
     ksession.insert(mussum)
     ksession.insert(pinga)
